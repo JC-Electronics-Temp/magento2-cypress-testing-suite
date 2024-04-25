@@ -1,10 +1,10 @@
-import homepage from '../../fixtures/hyva/homepage.json';
-import selectors from '../../fixtures/hyva/selectors/homepage.json';
-import searchSelectors from '../../fixtures/hyva/selectors/search.json';
-import product from '../../fixtures/hyva/product.json';
-import account from '../../fixtures/account.json';
-import cart from "../../fixtures/hyva/selectors/cart.json";
-import {Account} from '../../page-objects/hyva/account';
+import homepage from '../fixtures/hyva/homepage.json';
+import selectors from '../fixtures/hyva/selectors/homepage.json';
+import searchSelectors from '../fixtures/hyva/selectors/search.json';
+import product from '../fixtures/hyva/product.json';
+import account from '../fixtures/account.json';
+import cart from "../fixtures/hyva/selectors/cart.json";
+import {Account} from '../page-objects/hyva/account';
 
 describe('Home page tests', () => {
     beforeEach(() => {

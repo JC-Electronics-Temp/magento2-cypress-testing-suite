@@ -12,7 +12,7 @@
     "messageToast": ".message",
     "product": {
         "addToCartButton": "#product-addtocart-button",
-        "messageToast": "div.message",
+        "messageToast": ".flex-col > .text-gray-darker",
         "productPrice": ".price"
     },
     "productRowInCart": "div.table-row-item",
@@ -23,7 +23,7 @@
     "successMessages": "#messages .message.success",
     "url": {
         "cartUrl": "checkout/cart",
-        "product1Url": "/didi-sport-watch.html",
-        "product2Url": "/affirm-water-bottle.html"
+        "product1Url": "/5ap980-1505-k11",
+        "product2Url": "/6sn1145-1ba01-0da0"
     }
 }

@@ -1,23 +1,34 @@
 {
     "customer": {
         "customer": {
-            "email": "test@cypress-testing.com",
-            "firstname": "Test",
-            "lastname": "Test"
+            "email": "jelle@jc-electronics.nl",
+            "firstname": "Jelle",
+            "lastname": "Testma",
+			"city": "Groningen",
+			"country": "NL",
+			"phone": "1234567890",
+			"region": "Groningen",
+			"street": "Teststraat",
+			"housenumber": "1",
+			"zipcode": "9712AB",
+			"company": "Awesome Inc.",
+			"TaxVat": "NL862581205B01"
         },
-        "password": "Test!234"
+        "password": ""
     },
     "customerInfo": {
         "city": "Groningen",
-        "country": "Netherlands",
+		"country": "NL",
         "phone": "1234567890",
         "state": "Groningen",
-        "streetAddress": "Teststraat 1",
-        "zip": "9712AB"
+        "streetAddress": "Teststraat",
+        "housenumber": "1",
+        "zip": "9712AB",
+		"TaxVat": "NL862581205B01"
     },
     "customerLogin": {
-        "password": "Test!234",
-        "username": "test@cypress-testing.com"
+        "password": "8ea6.VFVQa-8ouPjAD7jL2cb.",
+        "username": "jelle@jc-electronics.nl"
     },
     "routes": {
         "accountAddAddress": "/customer/address/new",
@@ -34,6 +45,6 @@
     "tempCustomerInfo": {
         "firstname": "John",
         "lastname": "Doe",
-        "password": "Tset!234"
+        "password": ""
     }
 }

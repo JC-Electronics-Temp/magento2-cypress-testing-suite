@@ -1,8 +1,8 @@
-import { Search } from '../../../page-objects/hyva/search';
-import search from '../../../fixtures/hyva/search.json';
-import globalSelectors from '../../../fixtures/globalSelectors.json'
-import selectors from '../../../fixtures/hyva/selectors/search.json';
-import homepageSelectors from '../../../fixtures/hyva/selectors/homepage.json';
+import { Search } from '../page-objects/hyva/search';
+import search from '../fixtures/hyva/search.json';
+import globalSelectors from '../fixtures/globalSelectors.json'
+import selectors from '../fixtures/hyva/selectors/search.json';
+import homepageSelectors from '../fixtures/hyva/selectors/homepage.json';
 
 describe('Perform searches', () => {
     beforeEach(() => {

@@ -1,5 +1,5 @@
-import product from "../../../fixtures/hyva/product.json";
-import selectors from "../../../fixtures/hyva/selectors/category.json";
+import product from "../fixtures/hyva/product.json";
+import selectors from "../fixtures/hyva/selectors/category.json";
 
 describe("Category page tests", () => {
     beforeEach(() => {

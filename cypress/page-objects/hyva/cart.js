@@ -3,7 +3,11 @@ import cart from '../../fixtures/hyva/selectors/cart.json';
 export class Cart {
     static addProductToCart(url) {
         cy.visit(url);
+		cy.get('#CybotCookiebotDialogBodyLevelButtonAccept').click();
         cy.get(cart.product.addToCartButton).click();
+        cy.get(cart.product.messageToast)
+            .should("include.text", "to your shopping cart")
+            .should("be.visible");
     }
 
     static addCouponCode(couponCode) {

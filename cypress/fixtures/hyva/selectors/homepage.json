@@ -23,7 +23,7 @@
     "headerLogo": "div#header a.text-xl",
     "headerSearchButton": "div#header #menu-search-icon",
     "headerSearch": "#search",
-    "mainHeading": "h1.title-font",
+    "mainHeading": "h1",
     "mainFirstProductSliderProductName": "div.product-slider:first-of-type .p-1:first-of-type div.text-primary",
     "mainFirstProductSliderAddToCart": "div.product-slider:first-of-type .p-1:first-of-type button.btn-primary",
     "myAccountContactInformationBlock": ":nth-child(1) > .flex > .flex-grow > p",

@@ -50,6 +50,83 @@ export class Magento2RestApi {
         });
     }
 
+    static setProductStock(sku, condition, qty, qty_tested) {
+		var is_in_stock = 0;
+		if (qty > 0) {
+			is_in_stock = 1;
+		}
+        cy.request({
+            method: 'PUT',
+            url: `/rest/V1/products/${sku} ${condition}`,
+			body: { 
+				product: {
+					status: 1,
+					extension_attributes: {
+						stock_item: {
+							qty: qty,
+							is_in_stock: is_in_stock
+						}
+					},
+					custom_attributes: [{
+						attribute_code: "quantity_tested",
+						value: qty_tested
+					}]
+				}
+			},
+            headers: {
+                authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
+            },
+        }).then((response) => {
+            console.log(response.body);
+        });
+    }
+
+    static getProduct(condition, qty_tested) {
+        cy.request({
+            method: 'GET',
+            url: `/rest/V1/products/
+			?searchCriteria[filter_groups][0][filters][0][field]=quantity_tested
+			&searchCriteria[filter_groups][0][filters][0][value]=1
+			&searchCriteria[filter_groups][1][filters][0][field]=product_box_type
+			&searchCriteria[filter_groups][1][filters][0][value]=8995
+			&searchCriteria[filter_groups][1][filters][0][condition_type]==
+			&searchCriteria[filter_groups][2][filters][0][field]=status
+			&searchCriteria[filter_groups][2][filters][0][value]=1
+			&searchCriteria[filter_groups][2][filters][0][condition_type]==
+			&searchCriteria[pageSize]=2
+			&fields=items[sku,quantity_tested,status,stock_item]`,	
+            headers: {
+                authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
+            },
+        }).then((response) => {
+            console.log(response.body);
+			// foreach
+			return response.body.items[0].sku.replace(' Refurbished','');
+        });
+    }
+
+    static getProductRepair(condition, qty_tested) {
+        cy.request({
+            method: 'GET',
+            url: `/rest/V1/products/
+			?searchCriteria[filter_groups][1][filters][0][field]=repair_price
+			&searchCriteria[filter_groups][1][filters][0][condition_type]=gt
+			&searchCriteria[filter_groups][1][filters][0][value]=100
+			&searchCriteria[filter_groups][2][filters][0][field]=status
+			&searchCriteria[filter_groups][2][filters][0][value]=1
+			&searchCriteria[filter_groups][2][filters][0][condition_type]==
+			&searchCriteria[pageSize]=2
+			&fields=items[sku,status,stock_item]`,	
+            headers: {
+                authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
+            },
+        }).then((response) => {
+            console.log(response.body);
+			// foreach
+			return response.body.items[0].sku.replace(' Refurbished','');
+        });
+    }
+
     /**
      * Creates a sales rule with randomly generated coupon code in a promise.
      *

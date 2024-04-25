@@ -3,6 +3,66 @@ import productSelectors from '../../fixtures/hyva/selectors/product.json';
 import account from '../../fixtures/account.json';
 
 export class Account {
+	constructor() {
+		this.account.firstname = 'Jelle';
+		this.account.lastname = 'Testma';
+	}
+	
+	static fetchAccount() {
+		cy.request({
+			url: 'https://my.api.mockaroo.com/users.json?key=1fa729b0',
+            method: 'GET',
+			log: true,
+			timeout: 20000	
+		}).then((response) => {
+			if (response.status === 200) {
+				expect(response).to.have.property('status')
+				var person = response.body;
+				/*cy.get('[x-model="customer.customer_name"]').type(person.firstname + ' ' + person.lastname);
+				cy.get('[x-model="customer.billing_company"]').type(person.company);
+				cy.get('[x-model="customer.billing_company"]').type(person.company);
+				cy.get('[x-model="customer.customer_email"]').type(person.email);
+				//cy.get('[x-model="customer.billing_telephone"]').type(person.phone);
+				cy.get('[x-model="customer.billing_telephone"]').type('514198765');
+				*/
+			}
+		});
+	}
+	
+	static enterAccountAddress(address) {
+		
+        cy.get(selectors.accountEmailInputSelector).type(address.email);
+        cy.get(selectors.newPasswordInputSelector).type(address.password);
+        cy.get(selectors.newPasswordConfirmationInputSelector).type(address.password);
+		
+		cy.get(selectors.accountFirstnameInputSelector).type(address.firstname);
+        cy.get(selectors.accountLastnameInputSelector).type(address.lastname);
+        cy.get(selectors.newAddressCityInput).type(address.city);
+        cy.get(selectors.newAddressZipcodeInput).type(address.zipcode);
+        cy.get(selectors.newAddressStreetInput).type(address.street);
+        cy.get(selectors.newAddressStreet2Input).type(address.housenumber);
+        //
+        cy.get(selectors.newAddressCompanyInput).type(address.company);
+        cy.get(selectors.newAddressPhoneInput).type(address.phone);
+		
+		
+        cy.get(selectors.newAddressCountryInput).select(address.country);
+        if (address.country === 'United States') {
+            cy.get(selectors.newAddressRegionInput).type(address.region);
+		}
+		
+		cy.get('body').then(($body) => {
+			if ($body.find('#vat_id').length > 0) {
+				if (address.TaxVat == 'default') {
+					cy.get('#vat_id').type('NL858988069B01');
+				} else {
+					cy.get('#vat_id').type(address.TaxVat);
+				}
+				cy.get("#vat_id").blur();
+			}
+		});
+    }
+	
     static login(user, pw) {
         cy.visit(account.routes.accountIndex);
         cy.get(selectors.loginEmailInputSelector).type(user);
@@ -48,16 +108,6 @@ export class Account {
         cy.window().then((w) => (w.initial = true));
     }
 
-    static createNewCustomer(firstName, lastName, email, passwd) {
-        cy.get(selectors.accountFirstnameInputSelector).type(firstName);
-        cy.get(selectors.accountLastnameInputSelector).type(lastName);
-        cy.get(selectors.accountEmailInputSelector).type(email);
-        cy.get(selectors.newPasswordInputSelector).type(passwd);
-        cy.get(selectors.newPasswordConfirmationInputSelector).type(
-            `${passwd}{enter}`
-        );
-    }
-
     static logout() {
         cy.get(selectors.accountMenuIcon).click()
         cy.get(selectors.accountMenuItems)
@@ -75,11 +125,12 @@ export class Account {
                 cy.get(selectors.defaultShippingAddress).check();
             }
             cy.get(selectors.newAddressStreetInput).type(customerInfo.streetAddress);
+            cy.get(selectors.newAddressStreet2Input).type(customerInfo.streetAddress);
             cy.get(selectors.newAddressCityInput).type(customerInfo.city);
-            cy.get(selectors.newAddressTelInput).type(customerInfo.phone);
+            cy.get(selectors.newAddressPhoneInput).type(customerInfo.phone);
             cy.get(selectors.newAddressZipcodeInput).type(customerInfo.zip);
             cy.get(selectors.newAddressCountryInput).select(customerInfo.country);
-            cy.get(selectors.newAddressRegionInput).type(customerInfo.state);
+            //cy.get(selectors.newAddressRegionInput).type(customerInfo.state);
             cy.contains('Save Address').click();
         });
     }

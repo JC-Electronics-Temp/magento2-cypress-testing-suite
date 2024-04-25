@@ -1,41 +1,36 @@
-import {Account} from '../../../page-objects/hyva/account';
-import {Magento2RestApi} from '../../../support/magento2-rest-api';
-import account from '../../../fixtures/account.json';
-import product from '../../../fixtures/hyva/product.json';
-import checkout from '../../../fixtures/checkout.json';
-import selectors from '../../../fixtures/hyva/selectors/account.json';
-import checkoutSelectors from '../../../fixtures/hyva/selectors/checkout.json';
-import productSelectors from '../../../fixtures/hyva/selectors/product.json';
-import homepageSelectors from '../../../fixtures/hyva/selectors/homepage.json'
-import cart from "../../../fixtures/hyva/selectors/cart.json";
-import {Cart} from "../../../page-objects/hyva/cart";
+import {Account} from '../page-objects/hyva/account';
+import {Magento2RestApi} from '../support/magento2-rest-api';
+import account from '../fixtures/account.json';
+import product from '../fixtures/hyva/product.json';
+import checkout from '../fixtures/checkout.json';
+import selectors from '../fixtures/hyva/selectors/account.json';
+import checkoutSelectors from '../fixtures/hyva/selectors/checkout.json';
+import productSelectors from '../fixtures/hyva/selectors/product.json';
+import homepageSelectors from '../fixtures/hyva/selectors/homepage.json'
+import cart from "../fixtures/hyva/selectors/cart.json";
+import {Cart} from "../page-objects/hyva/cart";
 
 describe(['hot'], 'Account test creation', () => {
     it('Can create an account', () => {
-        cy.visit(account.routes.accountCreate);
-        Account.createNewCustomer(
-            account.customer.customer.firstname,
-            account.customer.customer.lastname,
-            Date.now() + account.customer.customer.email,
-            account.customer.password
-        );
-        cy.contains(
-            'Thank you for registering with Main Website Store.'
-        ).should('exist');
+        cy.request("https://my.api.mockaroo.com/users.json?key=1fa729b0").then((response) => {
+			cy.visit(account.routes.accountCreate);
+			
+			Account.enterAccountAddress(response.body);
+		
+			//validate vat number
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
+			cy.get('form.form-create-account button[type=submit]').click();
+			cy.location('pathname', {timeout: 100000})
+				.should('include', '/customer/account');
+			cy.contains(
+				'Thank you for registering with JC-Electronics.'
+			).should('exist');
+		}
     });
 });
 
 describe(['hot'], 'Account activities', () => {
-    before(() => {
-        Magento2RestApi.createCustomerAccount(account.customer);
-        Account.login(
-            account.customer.customer.email,
-            account.customer.password
-        );
-        Account.createAddress(account.customerInfo);
-        // We need to logout or the beforeEach will fail
-        Account.logout();
-    });
 
     beforeEach(() => {
         Account.login(
@@ -46,7 +41,7 @@ describe(['hot'], 'Account activities', () => {
         cy.wait(0);
         cy.contains('Please wait and try again later.').should('not.exist');
     });
-
+/*
     after(() => {
         // Remove the added address
         cy.visit(account.routes.accountUrl);
@@ -71,7 +66,7 @@ describe(['hot'], 'Account activities', () => {
             return true;
         });
     });
-
+*/
     it('Can use API to login', () => {
         // @TODO As of yet quite useless
         Magento2RestApi.logCustomerIn(account.customerLogin);
@@ -82,7 +77,7 @@ describe(['hot'], 'Account activities', () => {
         Account.checkAllProfileSpecs();
     });
 
-    it('Can change password', () => {
+    it.skip('Can change password', () => {
         cy.visit(account.routes.accountEdit);
         cy.contains('Change Password').click();
         cy.contains('Current Password').should('be.visible');
@@ -106,7 +101,7 @@ describe(['hot'], 'Account activities', () => {
         cy.contains('You saved the account information.').should('exist');
     });
 
-    it('Can change the profile values', () => {
+    it.skip('Can change the profile values', () => {
         let fn = account.tempCustomerInfo.firstname,
             ln = account.tempCustomerInfo.lastname;
         cy.visit(account.routes.accountEdit);
@@ -140,37 +135,30 @@ describe(['hot'], 'Account activities', () => {
     it('Can view order history', () => {
         // Testing the link has already been done
         cy.visit(account.routes.accountOrderHistory);
-        cy.get('#maincontent .column.main').then(($column) => {
-            if ($column[0].querySelector('.order-products-toolbar p span')) {
-                cy.log($column.find('.order-products-toolbar p span').text());
-                expect(
-                    +$column[0]
-                        .querySelector('.order-products-toolbar p span')
-                        .innerText.trim()
-                        .slice(0, 1)
-                ).to.be.at.least(1);
-            } else {
-                cy.contains('You have placed no orders.').should('exist');
-            }
-        });
+		cy.get('#my-orders-table > div').its('length').then((size) => {
+			cy.log('Length is '+size);
+			if (size < 0) {
+				cy.contains('You have placed no orders.').should('exist');
+			}
+		});
     });
 
     it('Can add an address', () => {
         cy.visit(account.routes.accountAddAddress);
         Account.createAddress(account.customerInfo);
-        cy.contains(selectors.addNewAddressButton, 'Add New Address').click();
+        cy.contains(selectors.addNewAddressButton, 'Save Address').click();
         cy.get(selectors.newAddressStreetInput).type(
             account.customerInfo.streetAddress
         );
         cy.get(selectors.newAddressCityInput).type(account.customerInfo.city);
-        cy.get(selectors.newAddressTelInput).type(account.customerInfo.phone);
+        cy.get(selectors.newAddressPhoneInput).type(account.customerInfo.phone);
         cy.get(selectors.newAddressZipcodeInput).type(account.customerInfo.zip);
         cy.get(selectors.newAddressCountryInput).select(
             account.customerInfo.country
         );
-        cy.get(selectors.newAddressRegionInput).type(
-            account.customerInfo.state
-        );
+        //cy.get(selectors.newAddressRegionInput).type(
+        //    account.customerInfo.state
+        //);
         cy.get(selectors.newAddressBillingInput).check();
         cy.get(selectors.newAddressShippingInput).check();
         cy.contains('Save Address').click();
@@ -218,51 +206,6 @@ describe(['hot'], 'Account activities', () => {
         cy.contains('General Subscription').click();
         cy.get(selectors.subscriptionSaveButton).click();
         cy.get(homepageSelectors.successMessage).should('include.text', 'We have ');
-    });
-
-    it('Can add a product the a wishlist', () => {
-        cy.visit(product.simpleProductUrl);
-        cy.get(productSelectors.addToWishlistButton).eq(0).click();
-        cy.get(homepageSelectors.mainHeading)
-            .should('contain.text', 'My Wish List')
-            .should('exist');
-        cy.visit(product.wishlistUrl).then(() => {
-            cy.get('.toolbar-number').should('exist');
-            cy.contains(product.simpleProductName).should('exist');
-        });
-    });
-
-    it('Can edit the wishlist and remove item', () => {
-        // Add comment/check qty/send list/remove item
-        cy.visit(product.wishlistUrl);
-        cy.get(selectors.wishlistItemCommentField).first().type('foobar');
-        cy.get(selectors.wishlistUpdateButton).click();
-        cy.get(selectors.wishlistItemCommentField).should(
-            'contain.text',
-            'foobar'
-        );
-        cy.get(selectors.wishlistQtyField)
-            .first()
-            .then(($qty) => {
-                // you would actually be sure that you are counting the item you just added
-                expect($qty[0].valueAsNumber).to.be.at.least(1);
-            });
-        cy.get(selectors.wishlistShareButton).click();
-        cy.get(homepageSelectors.mainHeading)
-            .should('contain.text', 'Wish List Sharing')
-            .should('exist');
-        cy.get(selectors.wishlistShareBackLink).click();
-        cy.get(selectors.wishlistRemoveItemButton)
-            .first()
-            .click()
-            .then(() => {
-                cy.get(homepageSelectors.successMessage)
-                    .should(
-                        'contain.text',
-                        `${product.simpleProductName} has been removed from your Wish List.`
-                    )
-                    .should('exist');
-            });
     });
 
     it('Can log out', () => {

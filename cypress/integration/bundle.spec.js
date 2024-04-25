@@ -1,7 +1,7 @@
-import product from "../../../fixtures/hyva/product.json";
-import selectors from "../../../fixtures/hyva/selectors/product.json";
-import miniCartSelectors from "../../../fixtures/hyva/selectors/minicart.json";
-import homepageSelectors from "../../../fixtures/hyva/selectors/homepage.json";
+import product from "../fixtures/hyva/product.json";
+import selectors from "../fixtures/hyva/selectors/product.json";
+import miniCartSelectors from "../fixtures/hyva/selectors/minicart.json";
+import homepageSelectors from "../fixtures/hyva/selectors/homepage.json";
 
 describe('Bundle products test suite', () => {
     beforeEach(() => {
