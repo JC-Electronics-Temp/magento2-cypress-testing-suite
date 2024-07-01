@@ -23,7 +23,7 @@
     "newAddressBillingInput": "#primary_billing",
     "newAddressCityInput": "#city",
     "newAddressCountryInput": "#country",
-    "newAddressRegionInput": "#region",
+    "newAddressRegionInput": "#region_id",
     "newAddressShippingInput": "#primary_shipping",
     "newAddressStreetInput": "#street_1",
     "newAddressStreet2Input": "#street_2",

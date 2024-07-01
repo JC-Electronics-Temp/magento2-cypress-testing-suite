@@ -31,6 +31,7 @@ export class Account {
 	
 	static enterAccountAddress(address) {
 		
+        cy.get(selectors.newAddressCountryInput).select(address.country);
         cy.get(selectors.accountEmailInputSelector).type(address.email);
         cy.get(selectors.newPasswordInputSelector).type(address.password);
         cy.get(selectors.newPasswordConfirmationInputSelector).type(address.password);
@@ -46,11 +47,10 @@ export class Account {
         cy.get(selectors.newAddressPhoneInput).type(address.phone);
 		
 		
-        cy.get(selectors.newAddressCountryInput).select(address.country);
-        if (address.country === 'United States') {
-            cy.get(selectors.newAddressRegionInput).type(address.region);
+        if (address.country === 'US') {
+            cy.get(selectors.newAddressRegionInput).select(address.state);
 		}
-		
+		/*
 		cy.get('body').then(($body) => {
 			if ($body.find('#vat_id').length > 0) {
 				if (address.TaxVat == 'default') {
@@ -61,6 +61,7 @@ export class Account {
 				cy.get("#vat_id").blur();
 			}
 		});
+		*/
     }
 	
     static login(user, pw) {

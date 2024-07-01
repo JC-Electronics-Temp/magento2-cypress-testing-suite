@@ -1,4 +1,5 @@
 import {getWebsites} from './utils'
+import { Catalog } from '../page-objects/hyva/catalog';
 
 export class Magento2RestApi {
     static createCustomerAccount(customer) {
@@ -77,31 +78,43 @@ export class Magento2RestApi {
                 authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
             },
         }).then((response) => {
-            console.log(response.body);
+            //console.log(response.body);
         });
     }
 
     static getProduct(condition, qty_tested) {
-        cy.request({
-            method: 'GET',
-            url: `/rest/V1/products/
+		var catalogId = Catalog.getConditionId(condition);
+		var url = `/rest/V1/products/
 			?searchCriteria[filter_groups][0][filters][0][field]=quantity_tested
-			&searchCriteria[filter_groups][0][filters][0][value]=1
+			&searchCriteria[filter_groups][0][filters][0][value]=`+qty_tested+`
 			&searchCriteria[filter_groups][1][filters][0][field]=product_box_type
-			&searchCriteria[filter_groups][1][filters][0][value]=8995
+			&searchCriteria[filter_groups][1][filters][0][value]=`+catalogId+`
 			&searchCriteria[filter_groups][1][filters][0][condition_type]==
 			&searchCriteria[filter_groups][2][filters][0][field]=status
 			&searchCriteria[filter_groups][2][filters][0][value]=1
-			&searchCriteria[filter_groups][2][filters][0][condition_type]==
-			&searchCriteria[pageSize]=2
-			&fields=items[sku,quantity_tested,status,stock_item]`,	
+			&searchCriteria[filter_groups][2][filters][0][condition_type]==`;
+			if (condition == 'Cashback') {
+				url += `&searchCriteria[filter_groups][3][filters][0][field]=cashback_price
+				&searchCriteria[filter_groups][3][filters][0][value]=0
+				&searchCriteria[filter_groups][3][filters][0][condition_type]=gt`;
+			}
+			url += `
+			&searchCriteria[pageSize]=10
+			&fields=items[sku,quantity_tested,status,stock_item]`;
+        cy.request({
+            method: 'GET',
+            url: url,
             headers: {
                 authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
             },
         }).then((response) => {
-            console.log(response.body);
+            //console.log(response.body);
 			// foreach
-			return response.body.items[0].sku.replace(' Refurbished','');
+			var random = Math.floor(Math.random() * 10);
+			if (response.body.items.length-1 < random) { 
+				random = response.body.items.length; 
+			}
+			return response.body.items[random].sku.replace(' Refurbished','').replace(' New factory sealed','').replace(' New JC-E repacked','');
         });
     }
 
@@ -121,7 +134,7 @@ export class Magento2RestApi {
                 authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
             },
         }).then((response) => {
-            console.log(response.body);
+            //console.log(response.body);
 			// foreach
 			return response.body.items[0].sku.replace(' Refurbished','');
         });

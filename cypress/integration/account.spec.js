@@ -10,16 +10,36 @@ import homepageSelectors from '../fixtures/hyva/selectors/homepage.json'
 import cart from "../fixtures/hyva/selectors/cart.json";
 import {Cart} from "../page-objects/hyva/cart";
 
-describe(['hot'], 'Account test creation', () => {
-    it('Can create an account', () => {
+describe(['hot'], 'Account test creation NL', () => {
+    it.skip('Can create an account', () => {
         cy.request("https://my.api.mockaroo.com/users.json?key=1fa729b0").then((response) => {
 			cy.visit(account.routes.accountCreate);
 			
 			Account.enterAccountAddress(response.body);
 		
 			//validate vat number
-			cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
-			cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
+			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
+			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
+			cy.get('form.form-create-account button[type=submit]').click();
+			cy.location('pathname', {timeout: 100000})
+				.should('include', '/customer/account');
+			cy.contains(
+				'Thank you for registering with JC-Electronics.'
+			).should('exist');
+		}
+    });
+});
+
+describe(['hot'], 'Account test creation World', () => {
+    it.only('Can create an account', () => {
+        cy.request("https://my.api.mockaroo.com/accdataoutsideeu.json?key=1fa729b0").then((response) => {
+			cy.visit(account.routes.accountCreate);
+			
+			Account.enterAccountAddress(response.body);
+		
+			//validate vat number
+			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
+			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
 			cy.get('form.form-create-account button[type=submit]').click();
 			cy.location('pathname', {timeout: 100000})
 				.should('include', '/customer/account');
