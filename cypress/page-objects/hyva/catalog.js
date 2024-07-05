@@ -2,16 +2,17 @@
 export class Catalog {
 
     static addProductToCart(sku, condition) {
+		condition = condition.toLowerCase();
         cy.visit('/'+sku).then(($response) => {
 		if (condition) {
-			if (condition == 'Cashback') {
-				this.setCondition('Refurbished');
+			if (condition == 'cashback') {
+				this.setCondition('refurbished');
 				cy.get('#cashback').click();
 			} else if (condition == 'repair') {
 				cy.get('#repair').click();
 				
-				cy.get('#repair_serial').type('123');
-				cy.get('#repair_comment').type('abc');
+				cy.get('#repair_serial').type('serial_number');
+				cy.get('#repair_comment').type('this is the comment for this repair');
 				
 			} else {
 				this.setCondition(condition);
@@ -37,12 +38,15 @@ export class Catalog {
 	}
 	
 	static getConditionId(condition) {
+		console.log(condition);
 		var conditionId = 0;
-		if (condition == 'Refurbished') {
+		if (condition == 'refurbished') {
 			conditionId = 8995;
-		} else if (condition == 'New JC-E repacked') {
+		} else if (condition == 'new jc-e repacked') {
 			conditionId = 8994;
-		} else if (condition == 'Cashback') {
+		} else if (condition == 'cashback') {
+			conditionId = 8995;
+		} else if (condition == 'repair') {
 			conditionId = 8995;
 		} else {
 			conditionId = 8993;

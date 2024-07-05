@@ -83,9 +83,14 @@ export class Magento2RestApi {
     }
 
     static getProduct(condition, qty_tested) {
+		condition = condition.toLowerCase();
+		if (condition == 'repair') {
+			return cy.getProductRepair(condition, qty_tested);
+		}
 		var catalogId = Catalog.getConditionId(condition);
 		var url = `/rest/V1/products/
 			?searchCriteria[filter_groups][0][filters][0][field]=quantity_tested
+			&searchCriteria[filter_groups][0][filters][0][condition_type]=gt
 			&searchCriteria[filter_groups][0][filters][0][value]=`+qty_tested+`
 			&searchCriteria[filter_groups][1][filters][0][field]=product_box_type
 			&searchCriteria[filter_groups][1][filters][0][value]=`+catalogId+`
@@ -93,7 +98,7 @@ export class Magento2RestApi {
 			&searchCriteria[filter_groups][2][filters][0][field]=status
 			&searchCriteria[filter_groups][2][filters][0][value]=1
 			&searchCriteria[filter_groups][2][filters][0][condition_type]==`;
-			if (condition == 'Cashback') {
+			if (condition == 'cashback') {
 				url += `&searchCriteria[filter_groups][3][filters][0][field]=cashback_price
 				&searchCriteria[filter_groups][3][filters][0][value]=0
 				&searchCriteria[filter_groups][3][filters][0][condition_type]=gt`;
@@ -101,6 +106,7 @@ export class Magento2RestApi {
 			url += `
 			&searchCriteria[pageSize]=10
 			&fields=items[sku,quantity_tested,status,stock_item]`;
+			console.log(url);
         cy.request({
             method: 'GET',
             url: url,
@@ -108,7 +114,7 @@ export class Magento2RestApi {
                 authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
             },
         }).then((response) => {
-            //console.log(response.body);
+            console.log(response.body);
 			// foreach
 			var random = Math.floor(Math.random() * 10);
 			if (response.body.items.length-1 < random) { 

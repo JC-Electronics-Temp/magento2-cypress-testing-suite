@@ -12,7 +12,7 @@ import {Magento2RestApi} from '../support/magento2-rest-api';
 if(! Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {	
 	describe('Webforms', () => {
 		it('Quote request', () => {
-			cy.getProduct('refurbished', 1).then((sku) => {
+			cy.getProduct('Refurbished', 1).then((sku) => {
 				Account.login(
 					account.customer.customer.email,
 					account.customer.password
