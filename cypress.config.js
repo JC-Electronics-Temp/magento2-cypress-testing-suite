@@ -5,7 +5,7 @@ const envConfig = fs.existsSync('./cypress.env.json') ? require('./cypress.env.j
 
 // Run "NODE_ENV=develop npx cypress run" to run tests locally
 var defaultBaseUrl = process.env.NODE_ENV === 'develop' ? 'http://cypress.magento2.localhost' : 'https://www.acc-jc-electronics.com';
-//defaultBaseUrl = 'https://pr-757.jc-electronics.youweplatform.com/';
+//defaultBaseUrl = 'https://pr-860.jc-electronics.youweplatform.com/';
 // Sometimes our local envs are slow due to dev mode. Raising the timeout decreases flakiness
 const defaultCommandTimeout = process.env.NODE_ENV === 'develop' ? 10000 : 4000;
 
@@ -27,8 +27,10 @@ module.exports = defineConfig({
         supportFile: 'cypress/support/index.js',
         viewportWidth: 1920,
         viewportHeight: 1080,
-		experimentalSessionAndOrigin: true,
+		experimentalMemoryManagement: true,
+		numTestsKeptInMemory: 5,
 		chromeWebSecurity: false,
+		retries: 2,
 
         env: {
             mobileViewportWidthBreakpoint: 768,

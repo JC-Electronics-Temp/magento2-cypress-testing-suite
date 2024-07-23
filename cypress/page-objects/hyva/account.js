@@ -50,18 +50,18 @@ export class Account {
         if (address.country === 'US') {
             cy.get(selectors.newAddressRegionInput).select(address.state);
 		}
-		/*
-		cy.get('body').then(($body) => {
-			if ($body.find('#vat_id').length > 0) {
-				if (address.TaxVat == 'default') {
-					cy.get('#vat_id').type('NL858988069B01');
-				} else {
-					cy.get('#vat_id').type(address.TaxVat);
+		if (address.TaxVat) {
+			cy.get('body').then(($body) => {
+				if ($body.find('#vat_id').length > 0) {
+					if (address.TaxVat == 'default') {
+						cy.get('#vat_id').type('NL858988069B01');
+					} else {
+						cy.get('#vat_id').type(address.TaxVat);
+					}
+					cy.get("#vat_id").blur();
 				}
-				cy.get("#vat_id").blur();
-			}
-		});
-		*/
+			});
+		}
     }
 	
     static login(user, pw) {

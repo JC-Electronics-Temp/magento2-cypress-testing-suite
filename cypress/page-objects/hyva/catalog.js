@@ -9,10 +9,10 @@ export class Catalog {
 				this.setCondition('refurbished');
 				cy.get('#cashback').click();
 			} else if (condition == 'repair') {
-				cy.get('#repair').click();
+				cy.get('#repair').click({force: true});
 				
-				cy.get('#repair_serial').type('serial_number');
-				cy.get('#repair_comment').type('this is the comment for this repair');
+				cy.get('#repair_serial').should('not.be.disabled').type('serial_number');
+				cy.get('#repair_comment').should('not.be.disabled').type('this is the comment for this repair');
 				
 			} else {
 				this.setCondition(condition);
@@ -34,7 +34,7 @@ export class Catalog {
 	
 	static setCondition(condition) {
 		var conditionId = this.getConditionId(condition);
-		cy.get('input[value="'+conditionId+'"]').parent().click();
+		cy.get('input[value="'+conditionId+'"]').should('exist').parent().click();
 	}
 	
 	static getConditionId(condition) {

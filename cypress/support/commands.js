@@ -6,8 +6,8 @@ Cypress.Commands.addAll(Magento2RestApi)
 
 Cypress.Commands.add('cookieButtonOKClick', (token) => {
 	cy.get('body').then((body) => {
-		if (body.find('#CybotCookiebotDialogBodyLevelButtonAccept').length > 0) {
-			cy.get('#CybotCookiebotDialogBodyLevelButtonAccept').click();
+		if (body.find('#btn-cookie-deny').length > 0) {
+			cy.get('#btn-cookie-deny').click({force: true});
 		}
 	});
 });

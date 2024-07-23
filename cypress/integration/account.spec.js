@@ -11,15 +11,22 @@ import cart from "../fixtures/hyva/selectors/cart.json";
 import {Cart} from "../page-objects/hyva/cart";
 
 describe(['hot'], 'Account test creation NL', () => {
-    it.skip('Can create an account', () => {
+            
+	beforeEach(() => {
+		cy.visit('/');
+		cy.wait(1000);
+		cy.cookieButtonOKClick();
+	});
+	
+    it.skip('Can create an account NL', () => {
         cy.request("https://my.api.mockaroo.com/users.json?key=1fa729b0").then((response) => {
 			cy.visit(account.routes.accountCreate);
 			
 			Account.enterAccountAddress(response.body);
 		
 			//validate vat number
-			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
-			//cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
 			cy.get('form.form-create-account button[type=submit]').click();
 			cy.location('pathname', {timeout: 100000})
 				.should('include', '/customer/account');
@@ -28,10 +35,8 @@ describe(['hot'], 'Account test creation NL', () => {
 			).should('exist');
 		}
     });
-});
-
-describe(['hot'], 'Account test creation World', () => {
-    it.only('Can create an account', () => {
+	
+    it('Can create an account - world', () => {
         cy.request("https://my.api.mockaroo.com/accdataoutsideeu.json?key=1fa729b0").then((response) => {
 			cy.visit(account.routes.accountCreate);
 			
@@ -47,6 +52,36 @@ describe(['hot'], 'Account test creation World', () => {
 				'Thank you for registering with JC-Electronics.'
 			).should('exist');
 		}
+    });
+	
+    it('Can create an account Jelle', () => {
+			cy.visit(account.routes.accountCreate);
+			
+			Account.enterAccountAddress({
+			  "firstname": "Jelle",
+			  "lastname": "Kingma",	
+			  "company": "JK-Electronics",
+			  "street": "Zernikelaan",
+			  "housenumber": "18",
+			  "countries": "Netherlands",
+			  "country": "NL",
+			  "email": "jelle@jc-electronics.nl",
+			  "password": "8ea6.VFVQa-8ouPjAD7jL2cb.",
+			  "TaxVat": "default",
+			  "city": "Leek",
+			  "phone": "+31 594 64 32 92",
+			  "zipcode": "9351 VA"
+			});
+		
+			//validate vat number
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('be.visible');
+			cy.get('.vat_id .w-full', { timeout: 10000 }).should('not.be.visible');
+			cy.get('form.form-create-account button[type=submit]').click();
+			cy.location('pathname', {timeout: 100000})
+				.should('include', '/customer/account');
+			cy.contains(
+				'Thank you for registering with JC-Electronics.'
+			).should('exist');
     });
 });
 

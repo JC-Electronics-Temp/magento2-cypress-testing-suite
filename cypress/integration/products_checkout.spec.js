@@ -18,22 +18,23 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
     ];
 
     const clients = [
-        { loggedin: false },
-        { loggedin: true }
+        { loggedin: false, skipLoggedin: false },
+        { loggedin: true, skipLoggedin: false }
     ];
 
     const orderTypes = [
-        { type: 'repair', skipType: false, urgent: false },
-        { type: 'cashback', skipType: false, urgent: false },
-        { type: 'Refurbished', skipType: false, urgent: false },
-        { type: 'Refurbished', skipType: false, urgent: true }
+        { type: 'repair', skipType: false, urgent: false, typeLabel: 'rep' },
+        { type: 'cashback', skipType: false, urgent: false, typeLabel: 'cb' },
+        { type: 'Refurbished', skipType: false, urgent: false, typeLabel: 'ref' },
+        { type: 'Refurbished', skipType: false, urgent: false, typeLabel: 'ref' }
     ];
 
-    const placeOrder = false;
+    const placeOrder = true;
 
     paymentMethods.forEach(({ paymentMethod, skip, paymentLabel }) => {
         describe(`Create order with ${paymentMethod}`, () => {
-            beforeEach(() => {
+            
+			beforeEach(() => {
                 cy.visit('/');
                 cy.wait(1000);
                 cy.cookieButtonOKClick();
@@ -44,36 +45,49 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
             });
 
             if (!skip) {
-                clients.forEach(({ loggedin }) => {
-                    orderTypes.forEach(({ type, skipType, urgent }) => {
-                        if (!skipType && !(!loggedin && paymentMethod === 'companycredit')) {
+                clients.forEach(({ loggedin, skipLoggedin }) => {
+                    orderTypes.forEach(({ type, skipType, urgent, typeLabel }) => {
+                        if (!skipType && !skipLoggedin && !(!loggedin && paymentMethod === 'companycredit')) {
                             const loggedinLabel = loggedin ? 'acc' : 'guest';
                             const label = urgent ? `${loggedinLabel} !` : loggedinLabel;
 
-                            it(`${paymentMethod} - ${type} - ${label}`, () => {
-                                //cy.on('fail', (err, runnable) => {
-                                //    console.log("*****Error");
-                                //    console.log(err);
-                                //    return false;
-                                //});
+                            it(`${paymentMethod} - ${typeLabel} - ${label}`, () => {
+								
+								if (loggedin) {
+									Account.login(
+										account.customer.customer.email,
+										account.customer.password
+									);
+									
+									cy.visit('/checkout/cart');
+													
+                                    cy.get('body').then((body) => {
+										if (body.find("tbody.cart tr").length > 0) {
+										cy.get("tbody.cart tr").each(($row) => {
+											console.log('click');
+											cy.wrap($row).find("button.action-delete").trigger("click");
+										});
+										}
+									});
+								}
+								
 
-                                const quantity_tested = urgent ? 0 : 1;
+                                const quantity_tested = urgent ? 1 : 2;
 
-                                cy.getProduct(type, quantity_tested).then((sku) => {
+                                cy.getProduct(type, 1).then((sku) => {
                                     Catalog.addProductToCart(sku, type);
-
-                                    if (loggedin) {
-                                        Account.login(
-                                            account.customer.customer.email,
-                                            account.customer.password
-                                        );
-                                        cy.visit('/checkout');
+									if (urgent) {
+										Catalog.addProductToCart(sku, type);
+									}
+    
+									cy.visit('/checkout');
+									if (loggedin) {
                                         cy.get('.address-grid .address-item.active').should('exist');
                                     } else {
                                         cy.request("https://my.api.mockaroo.com/accdataoutsideeu.json?key=1fa729b0").then((response) => {
-                                            cy.visit('/checkout');
 
-                                            cy.get('#guest_details-email_address').type(response.body.email);
+                                            if (paymentMethod == 'adyen_hpp_ideal') response.body.country = 'NL';
+											cy.get('#guest_details-email_address').type(response.body.email);
                                             cy.get('#shipping-firstname').type(response.body.firstname);
                                             cy.get('#shipping-lastname').type(response.body.lastname);
                                             cy.get('#shipping-street-0').type(response.body.street);
@@ -85,6 +99,7 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                             cy.get('#shipping-telephone').type(response.body.phone);
                                             cy.get('#shipping-company').type(response.body.company);
                                             //cy.get('#shipping-vat_id').type(response.body.TaxVat);
+											//if (ideal) NL
                                         });
                                     }
 
@@ -109,7 +124,12 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                     cy.get('#magewire-loader .animate-spin', { timeout: 60000 }).should('not.be.visible');
 
                                     cy.get('body').then((body) => {
-                                        if (body.find('#payment-method-list li.active').length === 0) {
+										if (type == 'cashback' && paymentMethod == 'banktransfer') {
+											if (body.find(`li#payment-method-option-${paymentMethod}`).length == 0) {
+												return;
+											}
+										}
+                                        if (body.find(`li#payment-method-option-${paymentMethod}.active`).length !== 1) {
                                             cy.get(`#payment-method-option-${paymentMethod}`).click();
                                             cy.get('#magewire-loader .animate-spin', { timeout: 10000 }).should('be.visible');
                                             cy.get('#magewire-loader .animate-spin', { timeout: 60000 }).should('not.be.visible');
@@ -134,10 +154,7 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                         cy.get('#listItem-1154').click();
                                     }
 
-                                    let orderLabel = `Cprss: ${paymentLabel}-${type}-${label}`;
-                                    if (urgent) {
-                                        orderLabel += '!';
-                                    }
+                                    let orderLabel = `CPR: ${paymentLabel}-${typeLabel}-${label}`;
 
                                     cy.get('#purchase-order-number').clear().type(orderLabel).blur();
                                     cy.get('#purchase-order-number-section header div span.flex svg', { timeout: 10000 }).should('be.visible');

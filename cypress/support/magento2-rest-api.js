@@ -82,47 +82,81 @@ export class Magento2RestApi {
         });
     }
 
-    static getProduct(condition, qty_tested) {
+	static getProduct(condition, qty_tested) {
 		condition = condition.toLowerCase();
 		if (condition == 'repair') {
 			return cy.getProductRepair(condition, qty_tested);
 		}
+
 		var catalogId = Catalog.getConditionId(condition);
-		var url = `/rest/V1/products/
-			?searchCriteria[filter_groups][0][filters][0][field]=quantity_tested
-			&searchCriteria[filter_groups][0][filters][0][condition_type]=gt
-			&searchCriteria[filter_groups][0][filters][0][value]=`+qty_tested+`
-			&searchCriteria[filter_groups][1][filters][0][field]=product_box_type
-			&searchCriteria[filter_groups][1][filters][0][value]=`+catalogId+`
-			&searchCriteria[filter_groups][1][filters][0][condition_type]==
-			&searchCriteria[filter_groups][2][filters][0][field]=status
-			&searchCriteria[filter_groups][2][filters][0][value]=1
-			&searchCriteria[filter_groups][2][filters][0][condition_type]==`;
+		var qty_tested_condition = 'gt';
+		if (qty_tested == 1) {
+			qty_tested_condition = '='
+		}
+
+		// Define a function to fetch products recursively
+		function fetchProduct(page = 1) {
+			var url = `/rest/V1/products/
+				?searchCriteria[filter_groups][0][filters][0][field]=quantity_tested
+				&searchCriteria[filter_groups][0][filters][0][condition_type]=` + qty_tested_condition + `
+				&searchCriteria[filter_groups][0][filters][0][value]=` + qty_tested + `
+				&searchCriteria[filter_groups][1][filters][0][field]=product_box_type
+				&searchCriteria[filter_groups][1][filters][0][value]=` + catalogId + `
+				&searchCriteria[filter_groups][1][filters][0][condition_type]==
+				&searchCriteria[filter_groups][2][filters][0][field]=status
+				&searchCriteria[filter_groups][2][filters][0][value]=1
+				&searchCriteria[filter_groups][2][filters][0][condition_type]==`;
 			if (condition == 'cashback') {
 				url += `&searchCriteria[filter_groups][3][filters][0][field]=cashback_price
 				&searchCriteria[filter_groups][3][filters][0][value]=0
 				&searchCriteria[filter_groups][3][filters][0][condition_type]=gt`;
 			}
 			url += `
-			&searchCriteria[pageSize]=10
-			&fields=items[sku,quantity_tested,status,stock_item]`;
+				&searchCriteria[pageSize]=1
+				&searchCriteria[currentPage]=` + page + `
+				&fields=items[sku,quantity_tested,status]`;
 			console.log(url);
-        cy.request({
-            method: 'GET',
-            url: url,
-            headers: {
-                authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
-            },
-        }).then((response) => {
-            console.log(response.body);
-			// foreach
-			var random = Math.floor(Math.random() * 10);
-			if (response.body.items.length-1 < random) { 
-				random = response.body.items.length; 
-			}
-			return response.body.items[random].sku.replace(' Refurbished','').replace(' New factory sealed','').replace(' New JC-E repacked','');
-        });
-    }
+
+			return cy.request({
+				method: 'GET',
+				url: url,
+				headers: {
+					authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
+				},
+			}).then((response) => {
+				//console.log(response.body);
+
+				if (response.body.items.length === 0) {
+					console.log('Geen producten gevonden');
+					return null;
+				}
+
+				var product = response.body.items[0];
+				var sku = product.sku;
+
+				return cy.request({
+					method: 'GET',
+					url: `/rest/V1/stockItems/${sku}`,
+					headers: {
+						authorization: `Bearer ${Cypress.env('MAGENTO2_ADMIN_TOKEN')}`
+					},
+				}).then((stockResponse) => {
+					var stockItem = stockResponse.body;
+					console.log(stockItem);
+					if (stockItem.qty > 0) {
+						sku = sku.replace(' Refurbished', '').replace(' New factory sealed', '').replace(' New JC-E repacked', '');
+						return sku;
+					} else {
+						console.log('Geen voorraad, probeer een ander product');
+						return fetchProduct(page + 1); // Probeer het volgende product
+					}
+				});
+			});
+		}
+
+		// Start met de eerste pagina
+		return fetchProduct(Math.floor(Math.random() * 100) + 1));
+	}
 
     static getProductRepair(condition, qty_tested) {
         cy.request({
