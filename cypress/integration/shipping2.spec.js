@@ -74,7 +74,7 @@ const shippingData = {
 describe('Shipping costs', () => { 
     Object.entries(shippingData).forEach(([testName, details]) => {
         it(`Shipping: ${testName}`, () => {
-            Catalog.addProductToCart(details.product);
+            Catalog.addProductToCart(details.product, 'Refurbished');
             cy.visit('/checkout');
             const countrySelect = cy.get('#shipping-country_id');
             let i = 0;
@@ -107,7 +107,7 @@ describe('Checkout tests', () => {
     });
 
     it('Can see the correct product price and shipping costs', () => {
-        Checkout.addProductToCart('/6AV6641-0CA01-0AX1');
+        Checkout.addProductToCart('/6AV6641-0CA01-0AX1', 'Refurbished');
         cy.get(selectors.productPrice).then(($PDPprice) => {
             const PDPPrice = $PDPprice[0].innerText.trim();
             cy.visit(checkout.checkoutUrl);

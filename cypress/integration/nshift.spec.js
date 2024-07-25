@@ -6,7 +6,6 @@ describe('Unifaun API Delivery Checkout Test', () => {
 const testCases = [
   // Standard Shipping (Non-Pallet)
   
-	  /*
   {
     params: {
       tocountry: 'NL', // Netherlands
@@ -179,7 +178,6 @@ const testCases = [
       ]
     }
   },
-  */
   {
     params: {
       tocountry: 'ES', // Spain
@@ -193,12 +191,13 @@ const testCases = [
     expected: {
       status: 200,
       options: [
-        {
+        /*{
           name: 'Standard Shipping Pallet',
           priceValue: '175.00', // Price without currency sign
           estimatedDeliveryTime: '5 days',
           method: 'cec01'
         },
+		*/
         {
           name: 'Express Shipping Pallet',
           priceValue: '600.00', // Price without currency sign
@@ -223,12 +222,14 @@ const testCases = [
     expected: {
       status: 200,
       options: [
+	  /*
         {
           name: 'Standard Shipping Pallet',
           priceValue: '175.00', // Price without currency sign
           estimatedDeliveryTime: '5 days',
           method: 'cec01'
         },
+		*/
         {
           name: 'Express Shipping Pallet',
           priceValue: '1400.00', // Price without currency sign
@@ -273,6 +274,7 @@ const testCases = [
   testCases.forEach((testCase, index) => {
     it(`Checks delivery options for test case #${index + 1}: `+testCase.params.tocountry, () => {
       // Make the GET request with Bearer token
+	  cy.log(JSON.stringify(testCase.params));
       cy.request({
         method: 'GET',
         url: baseUrl,
@@ -286,8 +288,7 @@ const testCases = [
 
         const options = response.body.options;
         expect(options).to.be.an('array');
-        //expect(options.length).to.eq(testCase.expected.options.length); // Check if the number of options matches
-		console.log(options);
+        expect(options.length).to.eq(testCase.expected.options.length); // Check if the number of options matches
         options.forEach((option, index) => {
 			console.log(option);
 			console.log(testCase.expected.options[index]);

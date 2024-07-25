@@ -66,7 +66,7 @@ describe(['hot'], 'Account test creation NL', () => {
 			  "countries": "Netherlands",
 			  "country": "NL",
 			  "email": "jelle@jc-electronics.nl",
-			  "password": "8ea6.VFVQa-8ouPjAD7jL2cb.",
+			  "password": `${Cypress.env('USER_PASSWORD')}`,
 			  "TaxVat": "default",
 			  "city": "Leek",
 			  "phone": "+31 594 64 32 92",

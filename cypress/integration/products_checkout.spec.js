@@ -13,7 +13,8 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
     const paymentMethods = [
         { paymentMethod: 'companycredit', percentage: 22, skip: false, paymentLabel: 'cmpcrdt' },
         { paymentMethod: 'banktransfer', percentage: 22, skip: false, paymentLabel: 'bnktrnsf' },
-        { paymentMethod: 'adyen_hpp_ideal', percentage: 22, skip: false, paymentLabel: 'ideal' },
+        { paymentMethod: 'adyen_ideal', percentage: 22, skip: false, paymentLabel: 'ideal' },
+        { paymentMethod: 'adyen_sofort', percentage: 22, skip: false, paymentLabel: 'sofort' },
         { paymentMethod: 'adyen_cc', percentage: 22, skip: false, paymentLabel: 'crditcrd' }
     ];
 
@@ -86,7 +87,8 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                     } else {
                                         cy.request("https://my.api.mockaroo.com/accdataoutsideeu.json?key=1fa729b0").then((response) => {
 
-                                            if (paymentMethod == 'adyen_hpp_ideal') response.body.country = 'NL';
+                                            if (paymentMethod == 'adyen_ideal') response.body.country = 'NL';
+                                            if (paymentMethod == 'adyen_sofort') response.body.country = 'DE';
 											cy.get('#guest_details-email_address').type(response.body.email);
                                             cy.get('#shipping-firstname').type(response.body.firstname);
                                             cy.get('#shipping-lastname').type(response.body.lastname);
@@ -99,7 +101,6 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                             cy.get('#shipping-telephone').type(response.body.phone);
                                             cy.get('#shipping-company').type(response.body.company);
                                             //cy.get('#shipping-vat_id').type(response.body.TaxVat);
-											//if (ideal) NL
                                         });
                                     }
 
@@ -149,7 +150,7 @@ if (!Cypress.env('MAGENTO2_SKIP_CHECKOUT')) {
                                         cy.iframe('iframe[title="Iframe for security code"]').find('[data-fieldtype="encryptedSecurityCode"]').type('737');
 
                                         cy.get('[name="holderName"]').type('J. Doe');
-                                    } else if (paymentMethod === 'adyen_hpp_ideal') {
+                                    } else if (paymentMethod === 'adyen_ideal') {
                                         cy.get('.adyen-checkout__dropdown__button').click();
                                         cy.get('#listItem-1154').click();
                                     }
